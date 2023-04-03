@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "809646464925",
+    "firebase_url": "https://exam-march-default-rtdb.firebaseio.com",
+    "project_id": "exam-march",
+    "storage_bucket": "exam-march.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:809646464925:android:797da2f9071f72804f9974",
+        "android_client_info": {
+          "package_name": "com.example.exammarch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "809646464925-85e6pp2dafkl0c3hg6ic0iiuhgrumrur.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBgzVKE1Crs3KhCpy87cfTotygi3QIUJN0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "809646464925-6jcioc56bbvtc0gbgoa1qjdada0927k8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
