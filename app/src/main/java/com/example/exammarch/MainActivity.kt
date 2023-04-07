@@ -11,22 +11,71 @@ import android.os.Message
 import android.view.View
 import android.widget.SeekBar
 import com.example.exammarch.databinding.ActivityMainBinding
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
+import com.google.firebase.ktx.Firebase
 
 class MainActivity : AppCompatActivity() {
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
-    private lateinit var ringtone: Ringtone
     private lateinit var mp: MediaPlayer
+    private lateinit var referenceMediaState: DatabaseReference
+    private lateinit var referenceSeekbarPosition: DatabaseReference
     private var totalTime: Int = 0
+    private var mediaPlayerState: Boolean = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
         val defaultRingtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
 
+        referenceMediaState = Firebase.database.getReference("media_player_state")
+        referenceSeekbarPosition = Firebase.database.getReference("media_player_position")
+
         mp = MediaPlayer.create(this, defaultRingtoneUri)
         mp.isLooping = true
         mp.setVolume(0.5f, 0.5f)
         totalTime = mp.duration
+
+
+        /** Media player REALTIME Start or Stop*/
+        referenceMediaState.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                mediaPlayerState = snapshot.getValue<Boolean>() == true
+                if (mediaPlayerState) {
+                    mp.start()
+                    binding.playBtn.setBackgroundResource(R.drawable.ic_baseline_pause_24)
+                } else {
+                    if (mp.isPlaying) {
+                        mp.pause()
+                        binding.playBtn.setBackgroundResource(R.drawable.ic_baseline_play_arrow_24)
+
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+        })
+
+        /** Media player REALTIME position(progress) change listener*/
+        referenceSeekbarPosition.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val value = snapshot.getValue<Int>()
+                if (value != null) {
+                    val position = (value * mp.duration / 100)
+                    mp.seekTo(position)
+                }
+
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        })
+
 
         //VolumeBar
         binding.volumeBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
