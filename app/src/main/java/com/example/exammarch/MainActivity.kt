@@ -35,11 +35,6 @@ class MainActivity : AppCompatActivity() {
         referenceMediaState = Firebase.database.getReference("media_player_state")
         referenceSeekbarPosition = Firebase.database.getReference("media_player_position")
 
-        mp = MediaPlayer.create(this, defaultRingtoneUri)
-        mp.isLooping = true
-        mp.setVolume(0.5f, 0.5f)
-        totalTime = mp.duration
-
 
         /** Media player REALTIME Start or Stop*/
         referenceMediaState.addValueEventListener(object : ValueEventListener {
@@ -77,6 +72,12 @@ class MainActivity : AppCompatActivity() {
         })
 
 
+        mp = MediaPlayer.create(this, defaultRingtoneUri)
+        mp.isLooping = true
+        mp.setVolume(0.5f, 0.5f)
+        totalTime = mp.duration
+
+
         //VolumeBar
         binding.volumeBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -99,6 +100,7 @@ class MainActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
                     mp.seekTo(progress)
+                    referenceSeekbarPosition.setValue(progress*100/mp.duration)
                 }
             }
 
@@ -121,8 +123,15 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }).start()
-    }
 
+
+     mp.setOnCompletionListener {
+         it.seekTo(0)
+         it.pause()
+         binding.playBtn.setBackgroundResource(R.drawable.ic_baseline_play_arrow_24)
+         referenceMediaState.setValue(false)
+     }
+    }
     var handler = @SuppressLint("HandlerLeak")
     object : Handler() {
         @SuppressLint("SetTextI18n")
@@ -157,11 +166,15 @@ class MainActivity : AppCompatActivity() {
         if (mp.isPlaying) {
             //Stop
             mp.pause()
+            mediaPlayerState = false
             binding.playBtn.setBackgroundResource(R.drawable.ic_baseline_play_arrow_24)
         } else {
             //Start
             mp.start()
+            mediaPlayerState = true
             binding.playBtn.setBackgroundResource(R.drawable.ic_baseline_pause_24)
         }
+        referenceMediaState.setValue(mediaPlayerState)
     }
+
 }
